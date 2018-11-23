@@ -16,3 +16,6 @@ QA?? TODO??
 	1. How to run tests in debug mode???!!! Can I run debug for specific project? ???karma-debug-projectName????
 	2. How can I run tests only for specific projects? ???karma-projectName????
 	
+	
+How to build locally? 
+	gradlew clean publishToMavenLocal
