@@ -1,6 +1,6 @@
 #MultiProjectKarmaPlugin
 
-This plugin is developed version of [JasmineKarmaJS Project](https://github.com/KokinSSJ/JasmineKarmaJS) which allow to simpler add karma test to the gradle multi project.
+This plugin is developed version of [JasmineKarmaJS](https://github.com/KokinSSJ/JasmineKarmaJS) project which allow to simpler add karma test to the gradle multi project by adding just a plugin and config file!
 
 See also example project [MultiProjectSample](https://github.com/KokinSSJ)
 
