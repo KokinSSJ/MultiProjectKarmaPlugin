@@ -5,12 +5,14 @@ This plugin is developed version of [JasmineKarmaJS](https://github.com/KokinSSJ
 See also example project [MultiProjectSample](https://github.com/KokinSSJ)
 
 1. Add MultiProjectKarmaPlugin to your project.
-2. In root project karma.conf.properties (see description bellow)
-3. Add your karma test (e.g with Jasmine framework) to your subprojects
-4. Run tests by "gradlew karma"
+2. In root project add karma.conf.properties (see description bellow)
+3. Add karma.conf.js as desribed below
+4. Add your karma test (e.g with Jasmine framework) to your subprojects
+5. Run tests by "gradlew karma"
 
 
-Simple by adding karma.conf.js
+Simple by adding karma.conf.js -> what with method? 
+
 
 QA?? TODO??
 	1. How to run tests in debug mode???!!! Can I run debug for specific project? ???karma-debug-projectName????
