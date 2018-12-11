@@ -17,17 +17,18 @@ class KarmaPlugin implements Plugin<Project> {
 	void apply(Project project) {
 		println "KarmaPlugin: Hello $project"
 		
-		//setup node
+		//APPLY NodePlugin to allow further usage in this plugin
 		project.plugins.apply NodePlugin
-		NodeExtension nodeConfig = project.extensions.findByName('node') as NodeExtension
-		nodeConfig.download = true
-		nodeConfig.version = '6.12.0'
-		nodeConfig.npmVersion='3.10.10' 
-		nodeConfig.workDir = new File("${project.rootProject.projectDir}/../nodejs")
-		nodeConfig.npmWorkDir = new File("${project.rootProject.projectDir}/../npm")
-		nodeConfig.nodeModulesDir = new File("${project.rootProject.projectDir}")
+		//YOU CAN SPECIFY NODE SPECIALY FOR YOUR PROJECT BY adding node{} in build.gradle file
+//		NodeExtension nodeConfig = project.extensions.findByName('node') as NodeExtension
+//		nodeConfig.download = true
+//		nodeConfig.version = '6.12.0'
+//		nodeConfig.npmVersion='3.10.10' 
+//		nodeConfig.workDir = new File("${project.rootProject.projectDir}/../nodejs")
+//		nodeConfig.npmWorkDir = new File("${project.rootProject.projectDir}/../npm")
+//		nodeConfig.nodeModulesDir = new File("${project.rootProject.projectDir}")
 		
-		println "NODE extension $nodeConfig.download AND $nodeConfig.version"
+//		println "NODE extension $nodeConfig.download AND $nodeConfig.version"
 		//
 		
 		
