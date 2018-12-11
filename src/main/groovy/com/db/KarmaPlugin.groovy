@@ -21,7 +21,13 @@ class KarmaPlugin implements Plugin<Project> {
 		project.plugins.apply NodePlugin
 		NodeExtension nodeConfig = project.extensions.findByName('node') as NodeExtension
 		nodeConfig.download = true
-		nodeConfig.version = '8.11.3'
+		nodeConfig.version = '6.12.0'
+		nodeConfig.npmVersion='3.10.10' 
+		nodeConfig.workDir = new File("${project.rootProject.projectDir}/../nodejs")
+		nodeConfig.npmWorkDir = new File("${project.rootProject.projectDir}/../npm")
+		nodeConfig.nodeModulesDir = new File("${project.rootProject.projectDir}")
+		
+		println "NODE extension $nodeConfig.download AND $nodeConfig.version"
 		//
 		
 		
