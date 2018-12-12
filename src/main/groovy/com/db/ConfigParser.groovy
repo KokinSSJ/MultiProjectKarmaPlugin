@@ -1,5 +1,7 @@
 package com.db
 
+import groovy.json.StringEscapeUtils
+
 class ConfigParser {
 	void parseConfigProperties(File karmaConfigProperties, HashMap map) {
 		def parsedJson = new groovy.json.JsonSlurper().parseText(karmaConfigProperties.text)
@@ -10,31 +12,28 @@ class ConfigParser {
 
 	void parseFirstJsonLevel(HashMap map, firstLevelKey, firstLevelValue) {
 		if(!isDescription(firstLevelKey)) {
-			def list = new ArrayList<>();
-			map.put(firstLevelKey, list);
+			def list = new ArrayList<>() 
+			map.put(firstLevelKey, list) 
 			firstLevelValue.forEach {secondLevelKey, secondLevelValue ->
-				parseSecondJsonLevel(list, firstLevelKey, secondLevelKey,secondLevelValue)
+				parseSecondJsonLevel(list, secondLevelKey,secondLevelValue)
 			}
 			if(list.isEmpty()) {
 				throw new IllegalArgumentException("You have badly specified karma.conf.properties for: " + firstLevelKey)
-			}
+			} 
 		}
 	}
 
-	void parseSecondJsonLevel(ArrayList list,firstLevelKey, secondLevelKey, secondLevelValue) {
-		if(!isDescription(firstLevelKey) && isMockOrTestFile(secondLevelKey)) {
-			//potrzeba ten if? testy?
-//			if(secondLevelValue != null && secondLevelValue instanceof List){
+	void parseSecondJsonLevel(ArrayList list, String secondLevelKey, List<String> secondLevelValue) {
+		if(isMockOrTestFile(secondLevelKey)) {
 			list.addAll(secondLevelValue)
-			//							}
 		}
 	}
 	
-	  boolean isDescription(String key) {
+	boolean isDescription(String key) {
 		return key.equals("description")
 	}
 	
-	  boolean isMockOrTestFile(String name) {
+	boolean isMockOrTestFile(String name) {
 		return name.equals("mock-files") || name.equals("test-files")
 	}
 }
