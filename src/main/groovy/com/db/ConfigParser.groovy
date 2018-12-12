@@ -23,7 +23,7 @@ class ConfigParser {
 		}
 	}
 
-	void parseSecondJsonLevel(ArrayList list, String secondLevelKey, List<String> secondLevelValue) {
+	void parseSecondJsonLevel(ArrayList list, String secondLevelKey, secondLevelValue) {
 		if(isMockOrTestFile(secondLevelKey)) {
 			list.addAll(secondLevelValue)
 		}

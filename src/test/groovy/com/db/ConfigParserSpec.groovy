@@ -68,19 +68,28 @@ class ConfigParserSpec extends Specification {
 	def "should add to list when key is mock-files" () {
 		given:
 			def list = new ArrayList<>()
-			when:
-				parser.parseSecondJsonLevel(list, "mock-files", Arrays.asList("/dir/file2.js", "/file3.exe"))
-			then:
-				Assertions.assertThat(list).containsExactly("/dir/file2.js", "/file3.exe")
+		when:
+			parser.parseSecondJsonLevel(list, "mock-files", Arrays.asList("/dir/file2.js", "/file3.exe"))
+		then:
+			Assertions.assertThat(list).containsExactly("/dir/file2.js", "/file3.exe")
 	}
 	def "should not add to list when key is different than mock-files or test-files" () {
 		given:
 			def list = new ArrayList<>()
 			list.add("file0.bin")
+		when:
+			parser.parseSecondJsonLevel(list, "description", Arrays.asList("/dir/file2.js", "/file3.exe"))
+		then:
+			Assertions.assertThat(list).containsExactly("file0.bin")
+	}
+	def "should add to list when value is single String" () {
+		given:
+			def list = new ArrayList<>()
+			list.add("file0.bin")
 			when:
-				parser.parseSecondJsonLevel(list, "description", Arrays.asList("/dir/file2.js", "/file3.exe"))
+				parser.parseSecondJsonLevel(list, "mock-files", "/dir/file2.js")
 			then:
-				Assertions.assertThat(list).containsExactly("file0.bin")
+				Assertions.assertThat(list).containsExactly("file0.bin", "/dir/file2.js")
 	}
 	
 }
