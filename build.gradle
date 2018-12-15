@@ -1,12 +1,12 @@
-//apply plugin: 'groovy'
-//apply plugin: 'maven-publish'
 plugins {
     id 'groovy'
     id 'maven-publish'
     id 'nebula.provided-base' version '3.0.3'
 }
+
 group = 'com.db'
 version = '0.1'
+
 repositories {
 	mavenLocal()
     jcenter()
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
 	compile	gradleApi()
-	compile localGroovy()
+	compile 'org.codehaus.groovy:groovy-all:2.4.15'
 	compile 'com.moowork.gradle:gradle-node-plugin:1.2.0'
 	testCompile 'org.spockframework:spock-core:1.2-groovy-2.4'
 	testCompile 'org.assertj:assertj-core:3.11.1'
@@ -32,5 +32,8 @@ publishing {
             from components.java
         }
     }
+}
+tasks.withType(PublishToMavenLocal) { 
+	it.dependsOn test 
 }
 
