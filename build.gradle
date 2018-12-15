@@ -1,6 +1,7 @@
 plugins {
     id 'groovy'
     id 'maven-publish'
+//    id 'maven' //check usage of maven plugin!?
     id 'nebula.provided-base' version '3.0.3'
 }
 
@@ -33,7 +34,5 @@ publishing {
         }
     }
 }
-tasks.withType(PublishToMavenLocal) { 
-	it.dependsOn test 
-}
+tasks.withType(PublishToMavenLocal) { it.dependsOn test }
 
