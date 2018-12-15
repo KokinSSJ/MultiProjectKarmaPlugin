@@ -169,7 +169,7 @@ class ConfigParserSpec extends Specification {
 	
 	def "should return empty map when only descriptions"() {
 		setup:
-			File onlyDescriptions = new File("description.txt")
+			File onlyDescriptions = new File("test-file.txt")
 			onlyDescriptions.append('{"description":"object about"}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
@@ -181,7 +181,7 @@ class ConfigParserSpec extends Specification {
 	}
 	def "should throw expcetion than It's not a map!"() {
 		setup:
-			File onlyDescriptions = new File("description.txt")
+			File onlyDescriptions = new File("test-file.txt")
 			onlyDescriptions.append('{"description":"object about",')
 			onlyDescriptions.append('"module-name":"object about"}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
@@ -195,7 +195,7 @@ class ConfigParserSpec extends Specification {
 	}
 	def "should throw expcetio than In each module you can specify only description, mock-files and test-files"() {
 		setup:
-			File onlyDescriptions = new File("description.txt")
+			File onlyDescriptions = new File("test-file.txt")
 			onlyDescriptions.append('{"description":"object about",')
 			onlyDescriptions.append('"module-name": {"object about":"something different"}}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
@@ -208,9 +208,9 @@ class ConfigParserSpec extends Specification {
 		cleanup:
 			onlyDescriptions.delete();
 	}
-	def "should throw expcetio than List of files is empty!"() {
+	def "should throw expcetion than List of files is empty!"() {
 		setup:
-			File onlyDescriptions = new File("description.txt")
+			File onlyDescriptions = new File("test-file.txt")
 			onlyDescriptions.append('{"description":"object about",')
 			onlyDescriptions.append('"module-name": {"description":"something different"}}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
@@ -222,12 +222,20 @@ class ConfigParserSpec extends Specification {
 		cleanup:
 			onlyDescriptions.delete();
 	}
-	/*
-	 * Level1
-	 * 1. test  ze z description nie jest brane
-	 * 2. z innych sa tworzone
-	 * Level 2
-	 * to samo co 1
-	 */
-	
+	def "should throw expcetio than List of files is empty!"() {
+		setup:
+			File onlyDescriptions = new File("test-file.txt")
+			onlyDescriptions.append('{"description":"object about",')
+			onlyDescriptions.append('"module-name": {"description":"something different",')
+			onlyDescriptions.append('"mock-files":"/mock-file1.js",')
+			onlyDescriptions.append('"test-files": ["/test-file1.js", "/test-files2.js"]}}')
+			ConfigParser parser = new ConfigParser(onlyDescriptions)
+		when:
+			def result = parser.parseConfigProperties()
+		then:
+			result.size() == 1
+			Assertions.assertThat(result.get("module-name")).containsExactly("/mock-file1.js", "/test-file1.js", "/test-files2.js" )
+		cleanup:
+			onlyDescriptions.delete();
+	}
 }
