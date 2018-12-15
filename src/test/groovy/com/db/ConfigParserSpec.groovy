@@ -6,11 +6,13 @@ import static org.junit.Assert.assertThat
 import static org.junit.Assert.assertTrue
 
 import javax.swing.text.html.HTMLEditorKit.Parser
+import javax.xml.ws.soap.Addressing
 
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.ListAssert
 import org.gradle.internal.impldep.org.apache.ivy.core.module.descriptor.ExtendsDescriptor
 import org.gradle.internal.impldep.org.junit.rules.ExpectedException
+import org.spockframework.compiler.model.SetupBlock
 import org.spockframework.util.Matchers
 
 import groovy.swing.impl.DefaultAction
@@ -35,25 +37,6 @@ class ConfigParserSpec extends Specification {
 			assertFalse(result) 
 	}
 	
-	def "should return true when mock-files"() {
-		when:
-			boolean result = parser.isMockOrTestFile("mock-files")
-		then:
-			assertTrue(result);
-	}
-	
-	def "should return true when test-files"() {
-		when:
-			boolean result = parser.isMockOrTestFile("test-files")
-		then:
-			assertTrue(result);
-	}
-	def "should return false when else then test-files or mock-files"() {
-		when:
-			boolean result = parser.isMockOrTestFile("name")
-		then:
-			assertFalse(result);
-	}
 //	def "file can have description in first and second JSON level"
 	// def "should add mock-files first a then test-files"
 	def "should add to list when key is test-files" () {
@@ -82,14 +65,23 @@ class ConfigParserSpec extends Specification {
 		then:
 			Assertions.assertThat(list).containsExactly("file0.bin")
 	}
-	def "should add to list when value is single String" () {
+	def "should add to list when pass a String" () {
 		given:
 			def list = new ArrayList<>()
 			list.add("file0.bin")
-			when:
-				parser.parseSecondJsonLevel(list, "mock-files", "/dir/file2.js")
-			then:
-				Assertions.assertThat(list).containsExactly("file0.bin", "/dir/file2.js")
+		when:
+			parser.parseSecondJsonLevel(list, "mock-files", "/dir/file2.js")
+		then:
+			Assertions.assertThat(list).containsExactly("file0.bin", "/dir/file2.js")
+	}
+	
+	def "should not "() {
+		setup:
+			def map = new HashMap<>();
+		when:
+			parser.parseFirstJsonLevel(map, "name", "/file.js");
+		then:
+			map.isEmpty();
 	}
 	
 }

@@ -16,8 +16,6 @@ class KarmaPlugin implements Plugin<Project> {
 	private static final String NAME = "KarmaPlugin" //TODO move to build.gradle
 	private static final String VERSION ="1.0.0" //TODO move to build.gradle
 	
-	private static final ConfigParser PARSER = new ConfigParser();
-	
 	void apply(Project project) {
 		//APPLY NodePlugin to allow further usage in this plugin
 		project.plugins.apply NodePlugin
@@ -39,9 +37,8 @@ class KarmaPlugin implements Plugin<Project> {
 		println "$NAME: Configuring $project.name project"
 		println "$NAME: Found $karmaConfigProperties"
 		
-		def map = new HashMap<>();
-		
-		PARSER.parseConfigProperties(karmaConfigProperties, map)
+		ConfigParser parser = new ConfigParser(karmaConfigProperties);
+		def map = parser.parseConfigProperties();
 	//def check= ""
 	//map.get("storyeditor").each {
 	//		check+="--file=" + it + " "
