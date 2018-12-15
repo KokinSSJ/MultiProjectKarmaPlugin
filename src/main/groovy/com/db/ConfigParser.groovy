@@ -23,7 +23,7 @@ class ConfigParser {
 			def list = new ArrayList<>() 
 			map.put(firstLevelKey, list) 
 			firstLevelValue.forEach {secondLevelKey, secondLevelValue ->
-				parseSecondJsonLevel(list, secondLevelKey,secondLevelValue)
+				parseSecondJsonLevel(list, firstLevelKey, secondLevelKey,secondLevelValue)
 			}
 			if(list.isEmpty()) {
 				throw new IllegalArgumentException(INCORRECT_PROPERTIES + firstLevelKey + " List of files is empty!")
@@ -31,11 +31,11 @@ class ConfigParser {
 		}
 	}
 
-	void parseSecondJsonLevel(ArrayList list, String secondLevelKey, secondLevelValue) {
+	void parseSecondJsonLevel(ArrayList list, String firstLevelKey, String secondLevelKey, secondLevelValue) {
 		if(secondLevelKey.equals("mock-files")  || secondLevelKey.equals("test-files")) {
 			list.addAll(secondLevelValue)
 		} else if(!isDescription(secondLevelKey)) {
-			throw new IllegalArgumentException(INCORRECT_PROPERTIES + secondLevelKey + 
+			throw new IllegalArgumentException(INCORRECT_PROPERTIES + firstLevelKey + 
 				" In each module you can specify only description, mock-files and test-files!")
 		}
 	}

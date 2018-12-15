@@ -21,7 +21,7 @@ import spock.util.matcher.HamcrestMatchers
 
 class ConfigParserSpec extends Specification {
 	
-	ConfigParser parser = new ConfigParser() 
+	ConfigParser parser = new ConfigParser(new File("")) 
 
 	def "should return true when description"() {
 		when:
@@ -43,7 +43,7 @@ class ConfigParserSpec extends Specification {
 		given:
 			def list = new ArrayList<>()
 		when:
-			parser.parseSecondJsonLevel(list, "test-files", Arrays.asList("/dir/file1.js", "/file2.exe"))
+			parser.parseSecondJsonLevel(list, "module-name", "test-files", Arrays.asList("/dir/file1.js", "/file2.exe"))
 		then:
 			Assertions.assertThat(list).containsExactly("/dir/file1.js", "/file2.exe")
 	}
@@ -52,7 +52,7 @@ class ConfigParserSpec extends Specification {
 		given:
 			def list = new ArrayList<>()
 		when:
-			parser.parseSecondJsonLevel(list, "mock-files", Arrays.asList("/dir/file2.js", "/file3.exe"))
+			parser.parseSecondJsonLevel(list, "module-name", "mock-files", Arrays.asList("/dir/file2.js", "/file3.exe"))
 		then:
 			Assertions.assertThat(list).containsExactly("/dir/file2.js", "/file3.exe")
 	}
@@ -61,7 +61,7 @@ class ConfigParserSpec extends Specification {
 			def list = new ArrayList<>()
 			list.add("file0.bin")
 		when:
-			parser.parseSecondJsonLevel(list, "description", Arrays.asList("/dir/file2.js", "/file3.exe"))
+			parser.parseSecondJsonLevel(list, "module-name", "description", Arrays.asList("/dir/file2.js", "/file3.exe"))
 		then:
 			Assertions.assertThat(list).containsExactly("file0.bin")
 	}
@@ -70,7 +70,7 @@ class ConfigParserSpec extends Specification {
 			def list = new ArrayList<>()
 			list.add("file0.bin")
 		when:
-			parser.parseSecondJsonLevel(list, "mock-files", "/dir/file2.js")
+			parser.parseSecondJsonLevel(list, "module-name", "mock-files", "/dir/file2.js")
 		then:
 			Assertions.assertThat(list).containsExactly("file0.bin", "/dir/file2.js")
 	}
@@ -79,7 +79,7 @@ class ConfigParserSpec extends Specification {
 		setup:
 			def map = new HashMap<>() 
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", "/file.js");
+			parser.parseFirstJsonLevel(map, "module-name", "/file.js")
 		then:
 			IllegalArgumentException ex = thrown()
 			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " It's not a map!"
@@ -88,9 +88,9 @@ class ConfigParserSpec extends Specification {
 		setup:
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
-			value.put("description", "something about module");
+			value.put("description", "something about module")
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", value);
+			parser.parseFirstJsonLevel(map, "module-name", value)
 		then:
 			IllegalArgumentException ex = thrown()
 			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " List of files is empty!"
@@ -100,22 +100,22 @@ class ConfigParserSpec extends Specification {
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
 			value.put("description", "something about module");
-			value.put("other name", Arrays.asList("/file1", "file2.exe"));
+			value.put("other name", Arrays.asList("/file1", "file2.exe"))
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", value);
+			parser.parseFirstJsonLevel(map, "module-name", value)
 		then:
 			IllegalArgumentException ex = thrown()
-			ex.message == ConfigParser.INCORRECT_PROPERTIES + "other name" + 
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + 
 				" In each module you can specify only description, mock-files and test-files!"
 	}
 	def "should add to the list only files from mock-files list even if test-files not specified"() {
 		setup:
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
-			value.put("description", "something about module");
-			value.put("mock-files", Arrays.asList("/file1", "file2.exe"));
+			value.put("description", "something about module")
+			value.put("mock-files", Arrays.asList("/file1", "file2.exe"))
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", value);
+			parser.parseFirstJsonLevel(map, "module-name", value)
 		then:
 			map.size() == 1
 			Assertions.assertThat(map.get("module-name")).containsExactly("/file1", "file2.exe")
@@ -124,10 +124,10 @@ class ConfigParserSpec extends Specification {
 		setup:
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
-			value.put("description", "something about module");
-			value.put("mock-files",  "file2.exe" );
+			value.put("description", "something about module")
+			value.put("mock-files",  "file2.exe" )
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", value);
+			parser.parseFirstJsonLevel(map, "module-name", value)
 		then:
 			map.size() == 1
 			Assertions.assertThat(map.get("module-name")).containsExactly("file2.exe")
@@ -137,9 +137,9 @@ class ConfigParserSpec extends Specification {
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
 			value.put("description", "something about module");
-			value.put("test-files", Arrays.asList("/test-file1", "test-file2.exe"));
+			value.put("test-files", Arrays.asList("/test-file1", "test-file2.exe"))
 		when:
-			parser.parseFirstJsonLevel(map, "module-name", value);
+			parser.parseFirstJsonLevel(map, "module-name", value)
 		then:
 			map.size() == 1
 			Assertions.assertThat(map.get("module-name")).containsExactly("/test-file1", "test-file2.exe")
@@ -148,13 +148,86 @@ class ConfigParserSpec extends Specification {
 		setup:
 			def map = new HashMap<>() 
 			def value = new HashMap<>()
-			value.put("description", "something about module");
-			value.put("test-files",  "test-file2.exe" );
+			value.put("description", "something about module")
+			value.put("test-files",  "test-file2.exe" )
 		when:
 			parser.parseFirstJsonLevel(map, "module-name", value);
 		then:
 			map.size() == 1
 			Assertions.assertThat(map.get("module-name")).containsExactly("test-file2.exe")
 	}
+	def "should ignore description"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module")
+		when:
+			parser.parseFirstJsonLevel(map, "description", value);
+		then:
+			map.size() == 0
+	}
+	
+	def "should return empty map when only descriptions"() {
+		setup:
+			File onlyDescriptions = new File("description.txt")
+			onlyDescriptions.append('{"description":"object about"}')
+			ConfigParser parser = new ConfigParser(onlyDescriptions)
+		when:
+			def result = parser.parseConfigProperties()
+		then:
+			result.size() == 0
+		cleanup:
+			onlyDescriptions.delete();
+	}
+	def "should throw expcetion than It's not a map!"() {
+		setup:
+			File onlyDescriptions = new File("description.txt")
+			onlyDescriptions.append('{"description":"object about",')
+			onlyDescriptions.append('"module-name":"object about"}')
+			ConfigParser parser = new ConfigParser(onlyDescriptions)
+		when:
+			def result = parser.parseConfigProperties()
+		then:
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " It's not a map!"
+		cleanup:
+			onlyDescriptions.delete();
+	}
+	def "should throw expcetio than In each module you can specify only description, mock-files and test-files"() {
+		setup:
+			File onlyDescriptions = new File("description.txt")
+			onlyDescriptions.append('{"description":"object about",')
+			onlyDescriptions.append('"module-name": {"object about":"something different"}}')
+			ConfigParser parser = new ConfigParser(onlyDescriptions)
+		when:
+			def result = parser.parseConfigProperties()
+		then:
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + 
+				" In each module you can specify only description, mock-files and test-files!"
+		cleanup:
+			onlyDescriptions.delete();
+	}
+	def "should throw expcetio than List of files is empty!"() {
+		setup:
+			File onlyDescriptions = new File("description.txt")
+			onlyDescriptions.append('{"description":"object about",')
+			onlyDescriptions.append('"module-name": {"description":"something different"}}')
+			ConfigParser parser = new ConfigParser(onlyDescriptions)
+		when:
+			def result = parser.parseConfigProperties()
+		then:
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " List of files is empty!"
+		cleanup:
+			onlyDescriptions.delete();
+	}
+	/*
+	 * Level1
+	 * 1. test  ze z description nie jest brane
+	 * 2. z innych sa tworzone
+	 * Level 2
+	 * to samo co 1
+	 */
 	
 }
