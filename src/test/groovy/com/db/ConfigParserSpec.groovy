@@ -75,13 +75,86 @@ class ConfigParserSpec extends Specification {
 			Assertions.assertThat(list).containsExactly("file0.bin", "/dir/file2.js")
 	}
 	
-	def "should not "() {
+	def "should throw expcetion when first level value is no a map, like {} "() {
 		setup:
-			def map = new HashMap<>();
+			def map = new HashMap<>() 
 		when:
-			parser.parseFirstJsonLevel(map, "name", "/file.js");
+			parser.parseFirstJsonLevel(map, "module-name", "/file.js");
 		then:
-			map.isEmpty();
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " It's not a map!"
+	}
+	def "should throw expcetion that no files specified for specifiec project in karma.conf.properties"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " List of files is empty!"
+	}
+	def "should throw exception that only description, mock-files and test-files are allowed!"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+			value.put("other name", Arrays.asList("/file1", "file2.exe"));
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			IllegalArgumentException ex = thrown()
+			ex.message == ConfigParser.INCORRECT_PROPERTIES + "other name" + 
+				" In each module you can specify only description, mock-files and test-files!"
+	}
+	def "should add to the list only files from mock-files list even if test-files not specified"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+			value.put("mock-files", Arrays.asList("/file1", "file2.exe"));
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			map.size() == 1
+			Assertions.assertThat(map.get("module-name")).containsExactly("/file1", "file2.exe")
+	}
+	def "should consist only one file if mock-files is a string"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+			value.put("mock-files",  "file2.exe" );
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			map.size() == 1
+			Assertions.assertThat(map.get("module-name")).containsExactly("file2.exe")
+	}
+	def "should add to the list only files from test-files list even if mock-files not specified"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+			value.put("test-files", Arrays.asList("/test-file1", "test-file2.exe"));
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			map.size() == 1
+			Assertions.assertThat(map.get("module-name")).containsExactly("/test-file1", "test-file2.exe")
+	}
+	def "should consist only one file if test-files is a string"() {
+		setup:
+			def map = new HashMap<>() 
+			def value = new HashMap<>()
+			value.put("description", "something about module");
+			value.put("test-files",  "test-file2.exe" );
+		when:
+			parser.parseFirstJsonLevel(map, "module-name", value);
+		then:
+			map.size() == 1
+			Assertions.assertThat(map.get("module-name")).containsExactly("test-file2.exe")
 	}
 	
 }

@@ -26,7 +26,7 @@ class ConfigParser {
 				parseSecondJsonLevel(list, secondLevelKey,secondLevelValue)
 			}
 			if(list.isEmpty()) {
-				throw new IllegalArgumentException(INCORRECT_PROPERTIES + firstLevelKey)
+				throw new IllegalArgumentException(INCORRECT_PROPERTIES + firstLevelKey + " List of files is empty!")
 			} 
 		}
 	}
@@ -34,6 +34,9 @@ class ConfigParser {
 	void parseSecondJsonLevel(ArrayList list, String secondLevelKey, secondLevelValue) {
 		if(secondLevelKey.equals("mock-files")  || secondLevelKey.equals("test-files")) {
 			list.addAll(secondLevelValue)
+		} else if(!isDescription(secondLevelKey)) {
+			throw new IllegalArgumentException(INCORRECT_PROPERTIES + secondLevelKey + 
+				" In each module you can specify only description, mock-files and test-files!")
 		}
 	}
 	
@@ -45,6 +48,6 @@ class ConfigParser {
 		if(value instanceof Map) {
 			return true;
 		}
-		throw new IllegalArgumentException(INCORRECT_PROPERTIES + key)
+		throw new IllegalArgumentException(INCORRECT_PROPERTIES + key + " It's not a map!")
 	}
 }
