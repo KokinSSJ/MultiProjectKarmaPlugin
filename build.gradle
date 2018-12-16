@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
 //    id 'maven' //check usage of maven plugin!?
     id 'nebula.provided-base' version '3.0.3'
+    id 'java-gradle-plugin'
 }
 
 group = 'com.db'
