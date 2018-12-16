@@ -2,6 +2,7 @@
 .gradle/
 .project
 .settings/
+.groovy/
 bin/
 build/
 gradle/

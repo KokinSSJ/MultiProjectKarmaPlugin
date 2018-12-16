@@ -39,23 +39,11 @@ class KarmaPlugin implements Plugin<Project> {
 		
 		ConfigParser parser = new ConfigParser(karmaConfigProperties);
 		def map = parser.parseConfigProperties();
-	//def check= ""
-	//map.get("storyeditor").each {
-	//		check+="--file=" + it + " "
-	//}
-		println "MAP: "
-		println map
+
+		println "MAP: " + map
 		Integer i = 0;
 		map.each{ key, value ->
-			key
-			def check = ""
-			def absolutePath = project.file("$project.rootProject.projectDir").absolutePath
-			def subDir = project.rootProject.projectDir== project.name ? "" : "/" +  project.name 
-			value.each {
-				//check for root project
-				check+="--file=" + absolutePath + subDir + "/" + it + " "
-	//			check+="--file=" +   it + " "
-			}
+			def check = KarmaUtils.getTestFileAsParameter(project.rootProject.projectDir, project.name, value)
 	
 			println "CHECK:"
 			println check
@@ -106,6 +94,5 @@ class KarmaPlugin implements Plugin<Project> {
 			
 		}
 	}
-
 	
 }
