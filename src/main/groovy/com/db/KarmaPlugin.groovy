@@ -7,15 +7,20 @@ import groovy.json.StringEscapeUtils
 
 import com.moowork.gradle.node.npm.NpmInstallTask
 import com.moowork.gradle.node.npm.NpmTask
+
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import org.codehaus.groovy.classgen.ReturnAdder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.slf4j.LoggerFactory
 
 class KarmaPlugin implements Plugin<Project> {
 	
 	private static final String NAME = "KarmaPlugin" //TODO move to build.gradle
 	private static final String VERSION ="1.0.0" //TODO move to build.gradle
-	
+	def logger = LoggerFactory.getLogger(KarmaPlugin.class)
 	void apply(Project project) {
 		//APPLY NodePlugin to allow further usage in this plugin
 		project.plugins.apply NodePlugin
@@ -34,63 +39,54 @@ class KarmaPlugin implements Plugin<Project> {
 		if(!karmaConfigProperties.exists()) {
 			return;
 		}
-		println "$NAME: Configuring $project.name project"
-		println "$NAME: Found $karmaConfigProperties"
+		logger.info("$NAME: Configuring $project.name project") 
+		logger.info "$NAME: Found $karmaConfigProperties"
 		
 		ConfigParser parser = new ConfigParser(karmaConfigProperties);
 		def map = parser.parseConfigProperties();
+		if(!map.isEmpty()) {
+			def karmaConfigFile = project.file("$project.rootProject.projectDir/karma.conf.js")
+			if(!karmaConfigFile.exists()) {
+				logger.info "$NAME: Using default karma.conf.js"
+				def karmD = getClass().getClassLoader().getResource("karma-default.conf.js").getText()
+				
+				project.task('createKarmaConfig')  {
+					def KARMA_CONFIG = project.file("${project.rootProject.buildDir.absolutePath}/karma.conf.js")
+					outputs.file KARMA_CONFIG
+					doLast {
+						KARMA_CONFIG.parentFile.mkdirs()
+						KARMA_CONFIG.text = karmD
+					}
+				}
+				def testTask = project.tasks.findByName('test')
+				if (testTask) {
+					testTask.dependsOn 'createKarmaConfig'
+				}
+			}
+		}
 
-		println "MAP: " + map
 		Integer i = 0;
 		map.each{ key, value ->
-			def check = KarmaUtils.getTestFileAsParameter(project.rootProject.projectDir, project.name, value)
+			def testFiles = KarmaUtils.getTestFileAsParameter(project.rootProject.projectDir, project.name, value)
 	
-			println "CHECK:"
-			println check
-			def karmaSubTask = project.task ("karmaSubTask-${key}", type: NodeTask, dependsOn: 'npmInstall', description: 'Executes karma tests in single run') {
-				inputs.files("/karma.conf.properties", "/karma.conf.js")
-				def karmaConfigFile = project.file("$project.rootProject.projectDir/karma.conf.js")
-				def karmaConfigPath = karmaConfigFile.absolutePath
-				if(!karmaConfigFile.exists()) {
-					println "Using default karma.conf.js"
-	//				karmaConfigPath = 
-				} 
-				 
-				println "ROOT PROJECT: $project.rootProject.projectDir"
+			def karmaSubTask = project.task ("karmaSubTask-${key}", type: NodeTask, dependsOn: 'npmInstall', description: 'Executes karma tests in single run')  {
+				//inputs.files('/karma.conf.properties', '/karma.conf.js')
+				def karmaConfigPath = project.rootProject.buildDir.absolutePath +File.separator + 'karma.conf.js'
 				script = project.file("$project.rootProject.projectDir/node_modules/karma/bin/karma")
-				args = ['start', karmaConfigPath, "$check", '--single-run', '--color']
-				
+				args = ['start', karmaConfigPath, testFiles, '--single-run', '--color']
 			}
-			
-	//		project.task("karmaSubTask-${key}", type:NodeTask, dependsOn: NpmInstallTask) {
-	//			def karmaConfigPath = project.file("${rootProject.projectDir}/karma.conf.js").absolutePath
-	//			args = ['start', karmaConfigPath, "$check", '--single-run', '--color']
-	//		}
-			project.tasks.each{ task -> println task}
 			
 			println "TASK NAME $karmaSubTask.name"
 			String projectName = karmaSubTask.getName();
 			
-			println "TASK2 "
 			def testTask = project.tasks.findByName('test')
-					println "CONFIG 1 test: $testTask.name"
 				if (testTask) {
-					println "CONFIG 2 test"
-					println i++
-					
-					println testTask
 					testTask.dependsOn "karmaSubTask-${key}"
 			}
 		}
 		
-	//	def testTask = project.tasks.findByName('test')
-	//	if (testTask) {
-	//		testTask.dependsOn karma
-	//	}
-		
-		
 		project.afterEvaluate{
-			println "KarmaPlugin: END $project"
+			println "$NAME END $project"
 			
 		}
 	}
