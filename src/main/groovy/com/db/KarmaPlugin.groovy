@@ -43,52 +43,48 @@ class KarmaPlugin implements Plugin<Project> {
 		logger.info "$NAME: Found $karmaConfigProperties"
 		
 		ConfigParser parser = new ConfigParser(karmaConfigProperties);
-		def map = parser.parseConfigProperties();
-		if(!map.isEmpty()) {
-			def karmaConfigFile = project.file("$project.rootProject.projectDir/karma.conf.js")
-			if(!karmaConfigFile.exists()) {
-				logger.info "$NAME: Using default karma.conf.js"
-				def karmD = getClass().getClassLoader().getResource("karma-default.conf.js").getText()
-				
-				project.task('createKarmaConfig')  {
-					def KARMA_CONFIG = project.file("${project.rootProject.buildDir.absolutePath}/karma.conf.js")
-					outputs.file KARMA_CONFIG
-					doLast {
-						KARMA_CONFIG.parentFile.mkdirs()
-						KARMA_CONFIG.text = karmD
-					}
-				}
-				def testTask = project.tasks.findByName('test')
-				if (testTask) {
-					testTask.dependsOn 'createKarmaConfig'
-				}
-			}
+		def mapModuleToTestFiles = parser.extractTestFilesForEachModule();
+		if(!mapModuleToTestFiles.isEmpty()) {
+			verifyKarmaConfigJs(project)
 		}
 
-		Integer i = 0;
-		map.each{ key, value ->
+		mapModuleToTestFiles.each{ key, value ->
 			def testFiles = KarmaUtils.getTestFileAsParameter(project.rootProject.projectDir, project.name, value)
 	
 			def karmaSubTask = project.task ("karmaSubTask-${key}", type: NodeTask, dependsOn: 'npmInstall', description: 'Executes karma tests in single run')  {
-				//inputs.files('/karma.conf.properties', '/karma.conf.js')
+				inputs.files('/karma.conf.properties', '/karma.conf.js')
 				def karmaConfigPath = project.rootProject.buildDir.absolutePath +File.separator + 'karma.conf.js'
 				script = project.file("$project.rootProject.projectDir/node_modules/karma/bin/karma")
 				args = ['start', karmaConfigPath, testFiles, '--single-run', '--color']
 			}
-			
-			println "TASK NAME $karmaSubTask.name"
-			String projectName = karmaSubTask.getName();
-			
-			def testTask = project.tasks.findByName('test')
-				if (testTask) {
-					testTask.dependsOn "karmaSubTask-${key}"
-			}
-		}
-		
-		project.afterEvaluate{
-			println "$NAME END $project"
-			
+			addTaskToTestTaskDependency(project, "karmaSubTask-${key}")
 		}
 	}
+	
+	void verifyKarmaConfigJs(Project project) {
+		def karmaConfigFile = project.file("$project.rootProject.projectDir/karma.conf.js")
+		if(!karmaConfigFile.exists()) {
+			logger.info "$NAME: Using default karma.conf.js"
+			def defaultKarmaConfigJs = getClass().getClassLoader().getResource("karma-default.conf.js").getText()
+			
+			project.task('createKarmaConfig')  {
+				def KARMA_CONFIG = project.file("${project.rootProject.buildDir.absolutePath}/karma.conf.js")
+				outputs.file KARMA_CONFIG
+				doLast {
+					KARMA_CONFIG.parentFile.mkdirs()
+					KARMA_CONFIG.text = defaultKarmaConfigJs
+				}
+			}
+			addTaskToTestTaskDependency(project, 'createKarmaConfig')
+		}
+	}
+	void addTaskToTestTaskDependency(Project project, String taskName) {
+		def testTask = project.tasks.findByName('test')
+		if (testTask) {
+			testTask.dependsOn taskName
+		}
+	}
+	
+//	void nodeTasks // move apply plugin to root/project!
 	
 }

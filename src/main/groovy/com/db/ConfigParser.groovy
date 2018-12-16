@@ -9,7 +9,7 @@ class ConfigParser {
 		this.karmaConfigProperties = karmaConfigProperties;
 	}
 	
-	Map<String, List<String>> parseConfigProperties() {
+	Map<String, List<String>> extractTestFilesForEachModule() {
 		def map = new HashMap<>();
 		def parsedJson = new groovy.json.JsonSlurper().parseText(karmaConfigProperties.text)
 		parsedJson.forEach { firstLevelKey, firstLevelValue ->

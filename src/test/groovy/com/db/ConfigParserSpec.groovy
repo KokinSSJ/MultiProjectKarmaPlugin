@@ -173,7 +173,7 @@ class ConfigParserSpec extends Specification {
 			onlyDescriptions.append('{"description":"object about"}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
-			def result = parser.parseConfigProperties()
+			def result = parser.extractTestFilesForEachModule()
 		then:
 			result.size() == 0
 		cleanup:
@@ -186,7 +186,7 @@ class ConfigParserSpec extends Specification {
 			onlyDescriptions.append('"module-name":"object about"}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
-			def result = parser.parseConfigProperties()
+			def result = parser.extractTestFilesForEachModule()
 		then:
 			IllegalArgumentException ex = thrown()
 			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " It's not a map!"
@@ -200,7 +200,7 @@ class ConfigParserSpec extends Specification {
 			onlyDescriptions.append('"module-name": {"object about":"something different"}}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
-			def result = parser.parseConfigProperties()
+			def result = parser.extractTestFilesForEachModule()
 		then:
 			IllegalArgumentException ex = thrown()
 			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + 
@@ -215,7 +215,7 @@ class ConfigParserSpec extends Specification {
 			onlyDescriptions.append('"module-name": {"description":"something different"}}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
-			def result = parser.parseConfigProperties()
+			def result = parser.extractTestFilesForEachModule()
 		then:
 			IllegalArgumentException ex = thrown()
 			ex.message == ConfigParser.INCORRECT_PROPERTIES + "module-name" + " List of files is empty!"
@@ -231,7 +231,7 @@ class ConfigParserSpec extends Specification {
 			onlyDescriptions.append('"test-files": ["/test-file1.js", "/test-files2.js"]}}')
 			ConfigParser parser = new ConfigParser(onlyDescriptions)
 		when:
-			def result = parser.parseConfigProperties()
+			def result = parser.extractTestFilesForEachModule()
 		then:
 			result.size() == 1
 			Assertions.assertThat(result.get("module-name")).containsExactly("/mock-file1.js", "/test-file1.js", "/test-files2.js" )
