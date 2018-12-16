@@ -64,11 +64,11 @@ class KarmaPlugin implements Plugin<Project> {
 			def defaultKarmaConfigJs = getClass().getClassLoader().getResource("karma-default.conf.js").getText()
 			
 			project.task('createKarmaConfig')  {
-				def KARMA_CONFIG = project.file("${project.rootProject.buildDir.absolutePath}/karma.conf.js")
-				outputs.file KARMA_CONFIG
+				def karmaConfig = project.file("${project.rootProject.buildDir.absolutePath}/karma.conf.js")
+				outputs.file karmaConfig
 				doLast {
-					KARMA_CONFIG.parentFile.mkdirs()
-					KARMA_CONFIG.text = defaultKarmaConfigJs
+					karmaConfig.parentFile.mkdirs()
+					karmaConfig.text = defaultKarmaConfigJs
 				}
 			}
 			addTaskToTestTaskDependency(project, 'createKarmaConfig')
