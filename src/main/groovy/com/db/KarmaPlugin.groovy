@@ -81,6 +81,7 @@ class KarmaPlugin implements Plugin<Project> {
 	void addTaskToTestTaskDependency(Project project, String taskName) {
 		def testTask = project.rootProject.tasks.findByName('test')
 		if (testTask) {
+			println "KARMA: " + project.name + ":::" + taskName + "::" + project.tasks
 			def task = project.tasks.findByName(taskName)
 			testTask.dependsOn task == null ? taskName : task
 		}
