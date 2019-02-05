@@ -22,7 +22,7 @@ class KarmaPlugin implements Plugin<Project> {
 	private static final String VERSION ="1.0.0" //TODO move to build.gradle
 	def logger = LoggerFactory.getLogger(KarmaPlugin.class)
 	void apply(Project project) {
-		addTaskToTestTaskDependency(project, 'npmInstall')
+		//addTaskToTestTaskDependency(project, 'npmInstall')
 		project.allprojects.each { singleProject -> 
 				applySingleProject(singleProject)
 			}
@@ -48,11 +48,10 @@ class KarmaPlugin implements Plugin<Project> {
 		mapModuleToTestFiles.each{ key, value ->
 			def testFiles = KarmaUtils.getTestFileAsParameter(project.rootProject.projectDir, project.name, value)
 			def subTaskName = "karmaSubTask-${key}"
-			def karmaSubTask = project.task (subTaskName, type: NodeTask,  description: 'Executes karma tests in single run')  {
+			def karmaSubTask = project.task (subTaskName, type: NodeTask, dependsOn: project.rootProject.npmInstall, description: 'Executes karma tests in single run')  {
 				inputs.files('/karma.conf.properties', '/karma.conf.js')
 				script = project.file("$project.rootProject.projectDir/node_modules/karma/bin/karma") 
 				args = ['start', karmaConfigPath, testFiles, '--single-run', '--color']
-				shouldRunAfter 'npmInstall'
 			}
 			addTaskToTestTaskDependency(project, subTaskName)
 		}
