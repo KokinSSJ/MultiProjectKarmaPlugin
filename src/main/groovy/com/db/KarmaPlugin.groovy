@@ -23,13 +23,16 @@ class KarmaPlugin implements Plugin<Project> {
 	def logger = LoggerFactory.getLogger(KarmaPlugin.class)
 	void apply(Project project) {
 		//addTaskToTestTaskDependency(project, 'npmInstall')
-		project.allprojects.each { singleProject -> 
+		project.allprojects.each { it ->
+			it.plugins.apply NodePlugin
+			println it
+		}
+		project.subprojects.each { singleProject -> 
 				applySingleProject(singleProject)
-			}
+		}
 			
 	}
 	void applySingleProject(Project project) {
-		project.plugins.apply NodePlugin
 		def karmaConfigProperties = project.file("/karma.conf.properties")
 		if(!karmaConfigProperties.exists()) {
 			return;
